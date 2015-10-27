@@ -1,5 +1,7 @@
-          - LAMBDA WARS -
- - ROBIN SIKKENS & MATHIJS BANGMA -
-       - 4228189   4135520 -
+Changelog::
 
- - Project Start
+Model.hs
+
+Added || pLocation :: Point, pDirection :: Float || to world as representation of the player character.
+Added || enemies :: [Point]                      || to world in order to describe enemy positions
+Added || bullets :: [(Point, Float)]             || to world to describe bullets (with (location, direction))
