@@ -5,3 +5,5 @@ Model.hs
 Added || pLocation :: Point, pDirection :: Float || to world as representation of the player character.
 Added || enemies :: [Point]                      || to world in order to describe enemy positions
 Added || bullets :: [(Point, Float)]             || to world to describe bullets (with (location, direction))
+Added || snub implementation of Controller.Time.timeHandler
+Added || playerCharacter to View - drawing the PlayerCharacter to find out how it works.
