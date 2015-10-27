@@ -24,7 +24,9 @@ data World = World {
     }
     
 data RotateAction   = NoRotation | RotateLeft | RotateRight
+    deriving (Eq)
 data MovementAction = NoMovement | Thrust
+    deriving (Eq)
 data ShootAction    = Shoot      | DontShoot
 
 initial :: Int -> World
@@ -34,7 +36,7 @@ initial seed = World    {
                         movementAction = NoMovement,
                         shootAction = DontShoot,
                         bullets = [],
-                        pLocation = (512, 384),
+                        pLocation = (100, 384),
                         pDirection = 0,
                         enemies = []
                         }
