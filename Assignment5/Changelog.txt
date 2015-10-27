@@ -7,3 +7,5 @@ Added || enemies :: [Point]                      || to world in order to describ
 Added || bullets :: [(Point, Float)]             || to world to describe bullets (with (location, direction))
 Added || snub implementation of Controller.Time.timeHandler
 Added || playerCharacter to View - drawing the PlayerCharacter to find out how it works.
+Added || PlayerCharacter can now be rotated with the arrowkeys.
+Added || PlayerCharacter can now move.
