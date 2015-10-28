@@ -16,16 +16,24 @@ data World = World {
         shootAction      :: ShootAction,
         -- TODO: add more fields here!
         --Player Details
-        pLocation :: Point,
-        pDirection :: Float, -- Player angle, in radians.
-        bullets :: [(Point, Float)], --(Location, Direction) Speed is normalised.
+        pLocation        :: Point,
+        pDirection       :: Float, -- Player angle, in radians.
+        bullets          :: [(Point, Float)], --(Location, Direction) Speed is normalised.
         --Enemy lists
-        enemies :: [Point]
+        enemies          :: [Point],
+        --Pickup list
+        pickups          :: [Point],
+        --Score things
+        score            :: Int,
+        scoreMultiplier  :: Int
     }
     
 data RotateAction   = NoRotation | RotateLeft | RotateRight
+    deriving (Eq)
 data MovementAction = NoMovement | Thrust
+    deriving (Eq)
 data ShootAction    = Shoot      | DontShoot
+    deriving (Eq)
 
 initial :: Int -> World
 initial seed = World    {
@@ -34,7 +42,10 @@ initial seed = World    {
                         movementAction = NoMovement,
                         shootAction = DontShoot,
                         bullets = [],
-                        pLocation = (512, 384),
+                        pLocation = (100, 384),
                         pDirection = 0,
-                        enemies = []
+                        enemies = [],
+                        score = 0,
+                        scoreMultiplier = 1,
+                        pickups = []
                         }
