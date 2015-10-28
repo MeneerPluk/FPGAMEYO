@@ -20,8 +20,8 @@ import Model
 -- | Time handling
 
 timeHandler :: Float -> World -> World
-timeHandler time world@(World {rotateAction, movementAction, shootAction, pLocation, pDirection, bullets}) 
-                = world {pDirection = newRotate, pLocation = newPosition, bullets = newBullets}
+timeHandler time world@(World {rotateAction, movementAction, shootAction, pLocation, pDirection, bullets, trail}) 
+                = world {pDirection = newRotate, pLocation = newPosition, bullets = newBullets, trail = newTrail}
           where newRotate   | rotateAction == RotateLeft  = pDirection + 3.14 * time
                             | rotateAction == RotateRight = pDirection - 3.14 * time
                             | otherwise                   = pDirection
@@ -32,3 +32,7 @@ timeHandler time world@(World {rotateAction, movementAction, shootAction, pLocat
                             | otherwise                   = bullets
                 updateBullet (loc, dir) = (loc + rotateV dir (800 * time, 0), dir)
                 newBullets = map updateBullet shootBullet
+                updateTrail (loc, life) = if (life > 1)
+                                          then (newPosition, 0)
+                                          else (loc, life + time)
+                newTrail = map updateTrail trail
