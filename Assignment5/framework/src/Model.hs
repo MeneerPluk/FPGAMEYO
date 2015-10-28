@@ -55,4 +55,4 @@ initial seed = World    {
         fillTrail = replicate 10 ((100, 384), 1)
         setLifeSpan :: [(Point, Float)] -> Float -> [(Point, Float)]
         setLifeSpan [] y = []
-        setLifeSpan ((p, _):xs) y = (p, 0.1 * y) : (setLifeSpan xs (y - 1))
+        setLifeSpan ((p, _):xs) y = (p, 0.1 * y) : ( setLifeSpan xs ( y - 1 ) )

@@ -21,6 +21,7 @@ draw horizontalResolution verticalResolution world@(World{pLocation, pDirection,
         playerTriangle = Color green (Polygon [(10, 0), (-10, 7), (-10, -7)])
         pX = fst pLocation
         pY = snd pLocation
+        
         playerBullet :: Point -> Picture
         playerBullet (x, y) = translate (x - centreX) (y - centreY) (Color blue (circleSolid 3))
         playerBullets = map playerBullet (map fst bullets)
