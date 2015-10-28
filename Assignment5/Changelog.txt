@@ -9,3 +9,5 @@ Added || snub implementation of Controller.Time.timeHandler
 Added || playerCharacter to View - drawing the PlayerCharacter to find out how it works.
 Added || PlayerCharacter can now be rotated with the arrowkeys.
 Added || PlayerCharacter can now move.
+Added || A draw function for the bullets.
+Added || The player can now shoot bullets.
