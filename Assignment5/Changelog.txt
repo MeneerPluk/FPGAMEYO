@@ -11,3 +11,5 @@ Added || PlayerCharacter can now be rotated with the arrowkeys.
 Added || PlayerCharacter can now move.
 Added || A draw function for the bullets.
 Added || The player can now shoot bullets.
+Added || The player can no longer go out of bounds; nor can his bullets.
+Added || A slight delay between bullet shots to make the game run better.

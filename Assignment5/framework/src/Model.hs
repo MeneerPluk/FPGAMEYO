@@ -8,14 +8,16 @@ import Graphics.Gloss.Data.Point
 -- | Game state
 
 data World = World {
+        --World size
+        window           :: Point,
         -- Random generator
         rndGen           :: StdGen,
         -- Event queue
         rotateAction     :: RotateAction,
         movementAction   :: MovementAction,
         shootAction      :: ShootAction,
-        -- TODO: add more fields here!
         --Player Details
+        reloadTimer      :: Float, -- To keep the amount of bullets in check
         pLocation        :: Point,
         pDirection       :: Float, -- Player angle, in radians.
         bullets          :: [(Point, Float)], --(Location, Direction) Speed is normalised.
@@ -26,7 +28,10 @@ data World = World {
         pickups          :: [Point],
         --Score things
         score            :: Int,
-        scoreMultiplier  :: Int
+        scoreMultiplier  :: Int,
+        --Stars
+        starLevel1       :: [Point],
+        starLevel2       :: [Point]
     }
     
 data RotateAction   = NoRotation | RotateLeft | RotateRight
@@ -36,23 +41,27 @@ data MovementAction = NoMovement | Thrust
 data ShootAction    = Shoot      | DontShoot
     deriving (Eq)
 
-initial :: Int -> World
-initial seed = World    {
+initial :: Int -> Point -> World
+initial seed (w, h) = World    {
+                        window = (w, h),
                         rndGen = mkStdGen seed,
                         rotateAction = NoRotation,
                         movementAction = NoMovement,
                         shootAction = DontShoot,
+                        reloadTimer = 0.4,
                         bullets = [],
                         trail = setLifeSpan fillTrail 10,
-                        pLocation = (100, 384),
+                        pLocation = (w/2, h/2),
                         pDirection = 0,
                         enemies = [],
                         score = 0,
                         scoreMultiplier = 1,
-                        pickups = []
+                        pickups = [],
+                        starLevel1 = fillStars 80,
+                        starLevel2 = fillStars 240
                         }
         where
-        fillTrail = replicate 10 ((100, 384), 1)
+        fillTrail = replicate 10 ((w/2, h/2), 1)
         setLifeSpan :: [(Point, Float)] -> Float -> [(Point, Float)]
         setLifeSpan [] y = []
         setLifeSpan ((p, _):xs) y = (p, 0.1 * y) : ( setLifeSpan xs ( y - 1 ) )

@@ -24,8 +24,9 @@ main :: IO ()
 main = do
     args <- getArgs
     time <- round <$> getPOSIXTime
-    let initial'        = initial time
+    -- The next two lets originally were switched - but this way we can give the window size to the World. 
     let (w, h, display) = chooseDisplay args
+    let initial'        = initial time (w, h)
     let background      = black
     let fps             = 60
     play display background fps initial' (draw w h) eventHandler timeHandler

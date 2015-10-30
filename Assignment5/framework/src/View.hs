@@ -12,10 +12,14 @@ import Model
 -- | Drawing
 
 draw :: Float -> Float -> World -> Picture
-draw horizontalResolution verticalResolution world@(World{pLocation, pDirection, bullets, trail, score, scoreMultiplier})
-    = pictures (scoreMultiplierText : scoreText : playerTrail ++ [playerCharacter] ++ playerBullets )
+draw horizontalResolution verticalResolution world@(World{window, pLocation, pDirection, bullets, trail, score, scoreMultiplier})
+    = pictures (bounds : scoreMultiplierText : scoreText : playerTrail ++ [playerCharacter] ++ playerBullets )
   where centreX = horizontalResolution / 2
-        centreY = verticalResolution   / 2       
+        centreY = verticalResolution   / 2     
+        bounds = Color red (line
+                            (map translateToCenter [(25, 25), (25, (snd window) - 25), ((fst window) - 25, (snd window) - 25), ((fst window) - 25, 25), (25, 25)]))
+        translateToCenter (x, y) = (x - centreX, y - centreY)
+        
         --The following variables all pertain information relevant to the player character
         playerCharacter = translate (pX - centreX) (pY - centreY) (rotate (radToDeg (-pDirection)) playerTriangle)
         playerTriangle = Color green (Polygon [(10, 0), (-10, 7), (-10, -7)])
