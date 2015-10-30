@@ -17,7 +17,6 @@ data World = World {
         movementAction   :: MovementAction,
         shootAction      :: ShootAction,
         --Player Details
-        reloadTimer      :: Float, -- To keep the amount of bullets in check
         pLocation        :: Point,
         pDirection       :: Float, -- Player angle, in radians.
         bullets          :: [(Point, Float)], --(Location, Direction) Speed is normalised.
@@ -48,12 +47,11 @@ initial seed (w, h) = World    {
                         rotateAction = NoRotation,
                         movementAction = NoMovement,
                         shootAction = DontShoot,
-                        reloadTimer = 0.4,
                         bullets = [],
                         trail = setLifeSpan fillTrail 10,
                         pLocation = (w/2, h/2),
                         pDirection = 0,
-                        enemies = zip (fillStars 80 25 (w - 25)) (drop 80 (fillStars 160 25 (h - 25))),
+                        enemies = zip (fillStars 20 25 (w - 25)) (drop 20 (fillStars 40 25 (h - 25))),
                         score = 0,
                         scoreMultiplier = 1,
                         pickups = [],

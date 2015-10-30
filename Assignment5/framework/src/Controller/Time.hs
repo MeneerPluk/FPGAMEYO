@@ -20,8 +20,8 @@ import Model
 -- | Time handling
 
 timeHandler :: Float -> World -> World
-timeHandler time world@(World {window, rotateAction, movementAction, shootAction, reloadTimer, pLocation, pDirection, bullets, trail, starLevel1, starLevel2}) 
-                = world {reloadTimer = newReloadTimer, pDirection = newRotate, pLocation = newPosition, bullets = newBullets, trail = newTrail, enemies = newEnemies, starLevel1 = newStarLevel1, starLevel2 = newStarLevel2}
+timeHandler time world@(World {window, rotateAction, movementAction, shootAction, pLocation, pDirection, bullets, trail, enemies, score, scoreMultiplier, starLevel1, starLevel2}) 
+                = world { pDirection = newRotate, pLocation = newPosition, bullets = newBullets, trail = newTrail, enemies = newEnemies, score, scoreMultiplier, starLevel1 = newStarLevel1, starLevel2 = newStarLevel2}
           where -- New player rotation
                 newRotate   | rotateAction == RotateLeft  = pDirection + 3.14 * time
                             | rotateAction == RotateRight = pDirection - 3.14 * time
@@ -40,17 +40,15 @@ timeHandler time world@(World {window, rotateAction, movementAction, shootAction
                             | otherwise = a
                 
                 -- Updating the bullets
-                newReloadTimer | reloadTimer > 0.05 = 0
-                               | otherwise = reloadTimer + time
-                               
-                shootBullet | shootAction == Shoot
-                              && newReloadTimer == 0       = (pLocation, pDirection) : bullets
+                shootBullet | shootAction == Shoot = (pLocation, pDirection) : bullets
                             | otherwise                   = bullets
                 
                 updateBullets :: [(Point, Float)] -> [(Point, Float)]
                 updateBullets [] = []
-                updateBullets ((loc, dir):xs) | outOfBounds loc = xs
-                                              | otherwise = (loc + rotateV dir (800 * time, 0), dir) : updateBullets xs
+                updateBullets (x:xs) | outOfBounds (fst (nextLocation x)) = updateBullets xs
+                                              | otherwise = nextLocation x : updateBullets xs
+                    where
+                    nextLocation (loc, dir) = (loc + rotateV dir (800 * time, 0), dir)
                 
                 newBullets = updateBullets shootBullet
                 outOfBounds (x, y) | x < 25
@@ -68,6 +66,18 @@ timeHandler time world@(World {window, rotateAction, movementAction, shootAction
                 
                 --Updating the enemies
                 newEnemies = updateEnemies enemies
+                updateEnemies :: [Point] -> [Point]
+                updateEnemies [] = []
+                updateEnemies (x:xs) | hitPlayer (nextLocation x) = -- Reset multiplier
+                                                                    updateEnemies xs
+                                     | otherwise = nextLocation x : updateEnemies xs
+                    where
+                    hitPlayer :: Point -> Bool
+                    hitPlayer (x, y) | abs (fst newPosition - x) < 10 && abs (snd newPosition - y) < 10
+                                        = True
+                                     | otherwise = False
+                    nextLocation loc = (loc + ((dirToPlayer loc) * (100, 100) * (time, time)))
+                    dirToPlayer loc = normalizeV (newPosition - loc)
                 
                 
                 --Updating the stars
