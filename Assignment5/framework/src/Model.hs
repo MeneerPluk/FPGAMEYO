@@ -4,6 +4,7 @@ module Model where
 
 import System.Random
 import Graphics.Gloss.Data.Point
+import Graphics.Gloss.Geometry.Angle
 
 -- | Game state
 
@@ -30,7 +31,10 @@ data World = World {
         scoreMultiplier  :: Int,
         --Stars
         starLevel1       :: [Point],
-        starLevel2       :: [Point]
+        starLevel2       :: [Point],
+        --Explosion (float is the direction)
+        explosion        :: ([(Point, Float)], Bool),
+        explosionSize    :: Int
     }
     
 data RotateAction   = NoRotation | RotateLeft | RotateRight
@@ -56,7 +60,9 @@ initial seed (w, h) = World    {
                         scoreMultiplier = 1,
                         pickups = [],
                         starLevel1 = zip (fillStars 80 25 (w - 25)) (drop 80 (fillStars 160 25 (h - 25))),
-                        starLevel2 = zip (fillStars 240 25 (w - 25)) (drop 240 (fillStars 480 25 (h - 25)))
+                        starLevel2 = zip (fillStars 240 25 (w - 25)) (drop 240 (fillStars 480 25 (h - 25))),      
+                        explosion = (zip (repeat (0,0))(map degToRad (randomRs (0, 360) (mkStdGen seed))), False),
+                        explosionSize = 200
                         }
         where
         fillTrail = replicate 10 ((w/2, h/2), 1)
