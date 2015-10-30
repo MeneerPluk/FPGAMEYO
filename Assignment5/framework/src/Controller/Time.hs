@@ -20,8 +20,8 @@ import Model
 -- | Time handling
 
 timeHandler :: Float -> World -> World
-timeHandler time world@(World {window, rotateAction, movementAction, shootAction, reloadTimer, pLocation, pDirection, bullets, trail, starLevel1, starLevel2}) 
-                = world {reloadTimer = newReloadTimer, pDirection = newRotate, pLocation = newPosition, bullets = newBullets, trail = newTrail, enemies = newEnemies, starLevel1 = newStarLevel1, starLevel2 = newStarLevel2}
+timeHandler time world@(World {window, rotateAction, movementAction, shootAction, reloadTimer, pLocation, pDirection, bullets, trail, starLevel1, starLevel2, explosion}) 
+                = world {reloadTimer = newReloadTimer, pDirection = newRotate, pLocation = newPosition, bullets = newBullets, trail = newTrail, starLevel1 = newStarLevel1, starLevel2 = newStarLevel2, explosion = newExplosion}
           where -- New player rotation
                 newRotate   | rotateAction == RotateLeft  = pDirection + 3.14 * time
                             | rotateAction == RotateRight = pDirection - 3.14 * time
@@ -49,7 +49,7 @@ timeHandler time world@(World {window, rotateAction, movementAction, shootAction
                 
                 updateBullets :: [(Point, Float)] -> [(Point, Float)]
                 updateBullets [] = []
-                updateBullets ((loc, dir):xs) | outOfBounds loc = xs
+                updateBullets ((loc, dir):xs) | outOfBounds loc = updateBullets xs
                                               | otherwise = (loc + rotateV dir (800 * time, 0), dir) : updateBullets xs
                 
                 newBullets = updateBullets shootBullet
@@ -66,11 +66,11 @@ timeHandler time world@(World {window, rotateAction, movementAction, shootAction
                                           else (loc, life + time)
                 newTrail = map updateTrail trail
                 
-                --Updating the enemies
-                newEnemies = updateEnemies enemies
+                -- Updating the enemies
+                newEnemies = undefined
                 
                 
-                --Updating the stars
+                -- Updating the stars
                 newStarLevel1 = moveStars 25 starLevel1
                 newStarLevel2 = moveStars 12.5 starLevel2
                 
@@ -78,3 +78,20 @@ timeHandler time world@(World {window, rotateAction, movementAction, shootAction
                 moveStars a [] = []
                 moveStars a (x:xs) | (fst x) + a * time > (fst window - 25) = (25, snd x) : moveStars a xs
                                    | otherwise = (fst x + a * time, snd x) : moveStars a xs
+                                   
+                -- Explosions
+                newExplosion = explode False (0,0) explosion
+                explode :: Bool -> Point -> ([(Point, Float)], Bool) -> ([(Point, Float)], Bool)
+                explode False _ (x, False) = (x, False)
+                explode True loc (ps, False) = (map (setLocation loc) ps, True)
+                
+                explode _ _ (ps, True) = (updateParticles ps, True)
+                
+                updateParticles :: [(Point, Float)] -> [(Point, Float)]
+                updateParticles [] = []
+                updateParticles ((loc, dir):ps) | outOfBounds loc = updateParticles ps
+                                                | otherwise = (loc + rotateV dir (800 * time, 0), dir): updateParticles ps
+                
+                
+                setLocation :: Point -> (Point, Float) -> (Point, Float)
+                setLocation loc (x, dir) = (loc, dir)

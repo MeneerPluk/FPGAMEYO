@@ -12,8 +12,8 @@ import Model
 -- | Drawing
 
 draw :: Float -> Float -> World -> Picture
-draw horizontalResolution verticalResolution world@(World{window, pLocation, pDirection, bullets, trail, enemies, score, scoreMultiplier, starLevel1, starLevel2})
-    = pictures (bounds : scoreMultiplierText : scoreText : playerTrail ++ [playerCharacter] ++ playerBullets ++ drawEnemies ++ drawStarLevel1 ++ drawStarLevel2)
+draw horizontalResolution verticalResolution world@(World{window, pLocation, pDirection, bullets, trail, enemies, score, scoreMultiplier, starLevel1, starLevel2, explosion, explosionSize})
+    = pictures (bounds : scoreMultiplierText : scoreText : playerTrail ++ [playerCharacter] ++ playerBullets ++ drawEnemies ++ drawStarLevel1 ++ drawStarLevel2 ++ drawExplosion)
   where centreX = horizontalResolution / 2
         centreY = verticalResolution   / 2     
         bounds = Color red (lineLoop
@@ -48,3 +48,10 @@ draw horizontalResolution verticalResolution world@(World{window, pLocation, pDi
         
         star2 (x, y) = translate (x - centreX) (y - centreY) (Color (greyN 0.40) (circleSolid 1))
         drawStarLevel2 = map star2 starLevel2
+        
+        --Draw Explosion.... or not
+        drawParticle (x, y) = translate (x - centreX) (y - centreY) (Color yellow (circleSolid 1))
+        drawParticles :: Int -> ([(Point, Float)], Bool) -> [Picture]
+        drawParticles _ (_, False) = []
+        drawParticles num (xs, True) = map drawParticle (map fst (take num xs)) 
+        drawExplosion = drawParticles explosionSize explosion
