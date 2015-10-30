@@ -20,8 +20,8 @@ import Model
 -- | Time handling
 
 timeHandler :: Float -> World -> World
-timeHandler time world@(World {window, rotateAction, movementAction, shootAction, reloadTimer, pLocation, pDirection, bullets, trail}) 
-                = world {reloadTimer = newReloadTimer, pDirection = newRotate, pLocation = newPosition, bullets = newBullets, trail = newTrail}
+timeHandler time world@(World {window, rotateAction, movementAction, shootAction, reloadTimer, pLocation, pDirection, bullets, trail, starLevel1, starLevel2}) 
+                = world {reloadTimer = newReloadTimer, pDirection = newRotate, pLocation = newPosition, bullets = newBullets, trail = newTrail, enemies = newEnemies, starLevel1 = newStarLevel1, starLevel2 = newStarLevel2}
           where -- New player rotation
                 newRotate   | rotateAction == RotateLeft  = pDirection + 3.14 * time
                             | rotateAction == RotateRight = pDirection - 3.14 * time
@@ -65,3 +65,16 @@ timeHandler time world@(World {window, rotateAction, movementAction, shootAction
                                           then (newPosition, 0)
                                           else (loc, life + time)
                 newTrail = map updateTrail trail
+                
+                --Updating the enemies
+                newEnemies = updateEnemies enemies
+                
+                
+                --Updating the stars
+                newStarLevel1 = moveStars 25 starLevel1
+                newStarLevel2 = moveStars 12.5 starLevel2
+                
+                moveStars :: Float -> [Point] -> [Point]
+                moveStars a [] = []
+                moveStars a (x:xs) | (fst x) + a * time > (fst window - 25) = (25, snd x) : moveStars a xs
+                                   | otherwise = (fst x + a * time, snd x) : moveStars a xs

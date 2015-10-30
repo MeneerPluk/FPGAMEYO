@@ -30,8 +30,8 @@ data World = World {
         score            :: Int,
         scoreMultiplier  :: Int,
         --Stars
-        starLevel1       :: [Float],
-        starLevel2       :: [Float]
+        starLevel1       :: [Point],
+        starLevel2       :: [Point]
     }
     
 data RotateAction   = NoRotation | RotateLeft | RotateRight
@@ -53,18 +53,18 @@ initial seed (w, h) = World    {
                         trail = setLifeSpan fillTrail 10,
                         pLocation = (w/2, h/2),
                         pDirection = 0,
-                        enemies = [],
+                        enemies = zip (fillStars 80 25 (w - 25)) (drop 80 (fillStars 160 25 (h - 25))),
                         score = 0,
                         scoreMultiplier = 1,
                         pickups = [],
-                        starLevel1 = fillStars 80,
-                        starLevel2 = fillStars 240
+                        starLevel1 = zip (fillStars 80 25 (w - 25)) (drop 80 (fillStars 160 25 (h - 25))),
+                        starLevel2 = zip (fillStars 240 25 (w - 25)) (drop 240 (fillStars 480 25 (h - 25)))
                         }
         where
         fillTrail = replicate 10 ((w/2, h/2), 1)
         setLifeSpan :: [(Point, Float)] -> Float -> [(Point, Float)]
         setLifeSpan [] y = []
         setLifeSpan ((p, _):xs) y = (p, 0.1 * y) : ( setLifeSpan xs ( y - 1 ) )
-        
-fillStars :: Int -> [Float]
-fillStars x = take x (randomRs (0, w) rndGen)
+        -- Amount -> MinBound -> MaxBound -> [Float]
+        fillStars :: Int -> Float -> Float -> [Float]
+        fillStars x min max = take x (randomRs (min, max) (mkStdGen seed))
