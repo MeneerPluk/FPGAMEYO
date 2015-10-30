@@ -28,6 +28,7 @@ timeHandler time world@(World {window, rotateAction, movementAction, shootAction
                             | otherwise                   = pDirection
                 
                 -- Determining the new player position
+                speed       = 200
                 newPosition | movementAction == Thrust    = fitToWindow (pLocation + rotateV newRotate (speed * time, 0))
                             | otherwise                   = pLocation
                 fitToWindow (x, y) = (clampX x, clampY y)

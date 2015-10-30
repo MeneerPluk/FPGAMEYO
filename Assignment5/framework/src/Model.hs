@@ -30,8 +30,8 @@ data World = World {
         score            :: Int,
         scoreMultiplier  :: Int,
         --Stars
-        starLevel1       :: [Point],
-        starLevel2       :: [Point]
+        starLevel1       :: [Float],
+        starLevel2       :: [Float]
     }
     
 data RotateAction   = NoRotation | RotateLeft | RotateRight
@@ -65,3 +65,6 @@ initial seed (w, h) = World    {
         setLifeSpan :: [(Point, Float)] -> Float -> [(Point, Float)]
         setLifeSpan [] y = []
         setLifeSpan ((p, _):xs) y = (p, 0.1 * y) : ( setLifeSpan xs ( y - 1 ) )
+        
+fillStars :: Int -> [Float]
+fillStars x = take x (randomRs (0, w) rndGen)
