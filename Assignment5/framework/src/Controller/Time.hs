@@ -21,17 +21,20 @@ import Model
 -- | Time handling
 
 timeHandler :: Float -> World -> World
-timeHandler time world@(World {window, rotateAction, movementAction, shootAction, pLocation, pDirection, bullets, trail, enemies, score, scoreMultiplier, starLevel1, starLevel2, explosion}) 
-                = world { pDirection = newRotate, pLocation = newPosition, bullets = newBullets, trail = newTrail, enemies = newEnemies, score = newScore, scoreMultiplier = newScoreMultiplier, starLevel1 = newStarLevel1, starLevel2 = newStarLevel2, explosion = newExplosion}
-          where -- New player rotation
+timeHandler time world@(World {window, rndGen, rotateAction, movementAction, shootAction, pLocation, pDirection, bullets, trail, enemies, pickups, score, scoreMultiplier, starLevel1, starLevel2, explosion}) 
+                = world { rndGen = newGen, pDirection = newRotate, pLocation = newPosition, bullets = newBullets, trail = newTrail, enemies = newEnemies, pickups = newPickups, score = newScore, scoreMultiplier = newScoreMultiplier, starLevel1 = newStarLevel1, starLevel2 = newStarLevel2}
+          where newGen = snd (next rndGen)
+          
+                -- New player rotation
                 newRotate   | rotateAction == RotateLeft  = pDirection + 3.14 * time
                             | rotateAction == RotateRight = pDirection - 3.14 * time
                             | otherwise                   = pDirection
                 
                 -- Determining the new player position
                 speed       = 200
-                newPosition | movementAction == Thrust    = fitToWindow (pLocation + rotateV newRotate (speed * time, 0))
-                            | otherwise                   = pLocation
+                newPosition | trd3 (chasePlayer enemies) == -1 = ((fst window)/2, (snd window)/2)
+                            | movementAction == Thrust         = fitToWindow (pLocation + rotateV newRotate (speed * time, 0))
+                            | otherwise                        = pLocation
                 fitToWindow (x, y) = (clampX x, clampY y)
                 clampX a    | a < 25 = 25
                             | a > (fst window) - 25 = (fst window) - 25
@@ -70,8 +73,31 @@ timeHandler time world@(World {window, rotateAction, movementAction, shootAction
                 snd3 (_, a, _) = a
                 trd3 (_, _, a) = a
                 
-                newEnemies = snd (getShot (snd3 (chasePlayer enemies)))
-                newScoreMultiplier = fst3 (chasePlayer enemies)
+                newEnemies = spawn (spawnChance rndGen 25) ++ snd (getShot (snd3 (chasePlayer enemies)))
+                newScoreMultiplier | trd3 (chasePlayer enemies) == -1 = 1
+                                   | otherwise                        = fst (updatePickups pickups)
+                
+                --Takes time and returns new enemies
+                spawnLoc :: StdGen -> (Point, StdGen)
+                spawnLoc g = ((spawnX, spawnY), (snd (next g))) 
+                    where spawnX = fst (randomR (25, (fst window) - 25) (snd (next (fst splitG))))
+                          spawnY = fst (randomR (25, (snd window) - 25) (snd (next (snd splitG))))
+                          splitG = split g
+                          
+                distanceToPlayer (x, y) = magV (x - (fst pLocation), y - (snd pLocation))
+                
+                spawnEnemy loc g| distanceToPlayer loc < 100 = spawnEnemy (fst (spawnLoc g)) (snd (spawnLoc g))
+                                | otherwise                 = loc
+                
+                spawnChance :: StdGen -> Int -> Bool
+                spawnChance g rate = rndNum g rate == 1
+                
+                
+                spawn False = []
+                spawn True  = [spawnEnemy (fst (spawnLoc rndGen)) rndGen]
+                    
+                rndNum :: StdGen -> Int -> Int
+                rndNum g max = fst (randomR (1, max) g)
                 
                 --Return value: (Multiplier, [Enemies], Score)
                 chasePlayer :: [Point] -> (Int, [Point], Int)
@@ -82,9 +108,9 @@ timeHandler time world@(World {window, rotateAction, movementAction, shootAction
                                    | otherwise = (500, [], -1)
                     where
                     --hitPlayer :: Point -> Bool
-                    hitPlayer (x, y) = abs (fst newPosition - x) < 10 && abs (snd newPosition - y) < 10
+                    hitPlayer (x, y) = abs (fst pLocation - x) < 10 && abs (snd pLocation - y) < 10
                     nextLocation loc = (loc + ((dirToPlayer loc) * (100, 100) * (time, time)))
-                    dirToPlayer loc = normalizeV (newPosition - loc)
+                    dirToPlayer loc = normalizeV (pLocation - loc)
 
                 newScore | trd3 (chasePlayer enemies) /= -1 = fst (getShot (snd3 (chasePlayer enemies)))
                          | otherwise = 0
@@ -108,6 +134,24 @@ timeHandler time world@(World {window, rotateAction, movementAction, shootAction
                 moveStars a [] = []
                 moveStars a (x:xs) | (fst x) + a * time > (fst window - 25) = (25, snd x) : moveStars a xs
                                    | otherwise = (fst x + a * time, snd x) : moveStars a xs
+                
+                
+                -- Handling pickups
+                newPickups | trd3 (chasePlayer enemies) == -1 = []
+                           | otherwise                        = snd (updatePickups (spawn (spawnChance rndGen 150) ++ pickups))
+                           
+                updatePickups :: [Point] -> (Int, [Point])
+                updatePickups [] = (scoreMultiplier, [])
+                updatePickups (x:xs) | hitPlayer x = (fst (updatePickups xs) + 1, snd (updatePickups xs))
+                                     | otherwise   = (fst (updatePickups xs), x : snd (updatePickups xs))
+                    where hitPlayer loc = distanceToPlayer loc < 12
+                
+                spawnPickup loc g | distanceToPlayer loc < 500 = spawnPickup (fst (spawnLoc g)) (snd (spawnLoc g))
+                                  | otherwise                 = loc
+                
+                spawnP False = []
+                spawnP True  = [spawnPickup (fst (spawnLoc rndGen)) rndGen]
+                
                 
                 {-
                 -- Explosions

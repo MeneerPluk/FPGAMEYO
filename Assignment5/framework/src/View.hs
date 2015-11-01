@@ -12,8 +12,8 @@ import Model
 -- | Drawing
 
 draw :: Float -> Float -> World -> Picture
-draw horizontalResolution verticalResolution world@(World{window, pLocation, pDirection, bullets, trail, enemies, score, scoreMultiplier, starLevel1, starLevel2, explosion, explosionSize})
-    = pictures (bounds : scoreMultiplierText : scoreText : drawStarLevel1 ++ drawStarLevel2 ++ playerTrail ++ [playerCharacter] ++ playerBullets ++ drawEnemies ++ drawExplosion)
+draw horizontalResolution verticalResolution world@(World{window, pLocation, pDirection, bullets, trail, enemies, pickups, score, scoreMultiplier, starLevel1, starLevel2, explosion, explosionSize})
+    = pictures (bounds : scoreMultiplierText : scoreText : drawStarLevel1 ++ drawStarLevel2 ++ playerTrail ++ playerBullets ++ drawPickups ++ drawEnemies ++ drawExplosion ++ [playerCharacter])
   where centreX = horizontalResolution / 2
         centreY = verticalResolution   / 2     
         bounds = Color red (lineLoop
@@ -37,6 +37,10 @@ draw horizontalResolution verticalResolution world@(World{window, pLocation, pDi
         --Enemies
         drawEnemy (x, y) = translate (x - centreX) (y - centreY) (Color red (Rotate 45 (rectangleSolid 10 10)))
         drawEnemies = map drawEnemy enemies
+        
+        --Pickups
+        drawPickup (x, y) = translate (x - centreX) (y - centreY) (Color blue (circleSolid 8))
+        drawPickups = map drawPickup pickups
         
         --Scoreshizzle
         scoreText = translate (20 - centreX) (centreY - 40) (Scale 0.2 0.2 (Color white (text ("Score: " ++ show score))))
