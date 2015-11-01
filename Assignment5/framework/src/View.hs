@@ -13,7 +13,7 @@ import Model
 
 draw :: Float -> Float -> World -> Picture
 draw horizontalResolution verticalResolution world@(World{window, pLocation, pDirection, bullets, trail, enemies, pickups, score, scoreMultiplier, starLevel1, starLevel2, explosion, explosionSize})
-    = pictures (bounds : scoreMultiplierText : scoreText : drawStarLevel1 ++ drawStarLevel2 ++ playerTrail ++ playerBullets ++ drawPickups ++ drawEnemies ++ drawExplosion ++ [playerCharacter])
+    = pictures (bounds : drawStarLevel1 ++ drawStarLevel2 ++ playerTrail ++ playerBullets ++ drawPickups ++ drawEnemies ++ drawExplosion ++ [playerCharacter] ++ [scoreMultiplierText] ++ [scoreText])
   where centreX = horizontalResolution / 2
         centreY = verticalResolution   / 2     
         bounds = Color red (lineLoop
